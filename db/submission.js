@@ -31,10 +31,10 @@ const client = new MongoClient(url);
 */
 
 const insertDocuments = function(db, payload, callback) {
-    // payload must be an array!!!
-
-    // Get the documents collection
     const collection = db.collection(collectionName);
+    if (!(payload instanceof Array)) {
+        payload = [payload];
+    }
 
     if (!collection) {
         return callback(new Error('Could not location collection ', collectionName), null);
@@ -49,15 +49,15 @@ const insertDocuments = function(db, payload, callback) {
 
 const findDocuments = function(db, payload, callback) {
     // Get the documents collection
-    const collection = db.collection('documents');
+    const collection = db.collection(collectionName);
     if (!collection) {
         return callback(new Error('Could not location collection ', collectionName), null);
     }
     // Find some documents
     // if payload = {} get all 
 
-    collection.find(payload).toArray(function(err, docs) {
-      console.log("Found the following records: ");
+    collection.find(payload || {}).toArray(function(err, docs) {
+      console.log("Found the following records: ", docs);
       callback(err, docs);
     });
 }
@@ -73,7 +73,7 @@ const validRequest = function(db, payload) {
         result.reason = new Error("No DB instance to act upon");
     }
 
-    if (!paylod || !payload.id) {
+    if (!payload) {
         result.valid = false;
         result.reason = new Error("Must provide a valid payload");
     }
@@ -112,7 +112,7 @@ function del(db, payload, cb) {
 }
 
 function get(db, payload, cb) {
-
+    return findDocuments(db, payload, cb);
 }
 
 module.exports = {

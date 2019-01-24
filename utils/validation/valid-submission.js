@@ -1,3 +1,3 @@
-export default (submission) => {
+module.exports = (submission) => {
     return true;
 }

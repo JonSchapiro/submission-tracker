@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongo = require('./db/submission');
 const isValidSubmission = require('./utils/validation/valid-submission');
 const app = express();
@@ -13,40 +12,37 @@ const startUp = () => {
             return startUpTries > 0 ? startUp() : process.exit();
         }
 
-        app.use(bodyParser.urlencoded({ extended: false }));
+        app.use(express.json());
 
-        app.get('/submissions', (req, res) => res.send('Hello World!'));
-        app.get('/submissions/:id', (req, res) => res.send('Hello World!'));
+        app.get('/submissions', (req, res) => mongo.get(db, {}, (err, results) => {
+            if (err) {
+                res.status(404);
+                return res.send([]);
+            }
+
+            res.status(200);
+            return res.send(results);
+        }));
+
+
+        app.get('/submissions/:id', (req, res) => res.sendStatus('Hello World!'));
         
         app.post('/submissions', (req, res) => {
             const submission = req.body;
-
+            console.log('loc1 ', submission);
             if (!submission || !isValidSubmission(submission)) {
-                return res.send(404);
+                return res.sendStatus(404);
             }
 
             return mongo.insert(db, submission, (err, result) => {
                 if (err || !result) {
-                    return res.send(404);
+                    console.error('Error while inserting submission: ', err);
+                    return res.sendStatus(404);
                 }
-
-                return res.send(200);
+                
+                console.log(result);
+                return res.sendStatus(200);
             });
-            // create id;
-            /*
-                req.body = 
-                {
-                    _id: '123', // on the object already
-                    user: 'jschapir',
-                    boa: true/false,
-                    type: 'sub/sweep/pass',
-                    position: 'closed guard/open guard',
-                    positionName: 'arm lock',
-                    yourBelt: 'white/blue/purple/brown/black,
-                    theirBelt: 'white/blue/purple/brown/black,
-                    date: new Date()
-                }
-            */
         });
         
         app.delete('/submissions/:id', (req, res) => {
@@ -58,3 +54,23 @@ const startUp = () => {
 };
 
 startUp();
+
+
+
+
+
+// create id;
+/*
+    req.body = 
+    {
+        _id: '123', // on the object already
+        user: 'jschapir',
+        boa: true/false,
+        type: 'sub/sweep/pass',
+        position: 'closed guard/open guard',
+        positionName: 'arm lock',
+        yourBelt: 'white/blue/purple/brown/black,
+        theirBelt: 'white/blue/purple/brown/black,
+        date: new Date()
+    }
+*/
