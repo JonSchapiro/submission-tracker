@@ -104,6 +104,19 @@ const validRequest = function(db, payload) {
     return result;
 }
 
+const getAllTotals = function(db, payload, callback) {
+    // Get the documents collection
+    const collection = db.collection(totalsCollectionName);
+    if (!collection) {
+        return callback(new Error('Could not location collection ', totalsCollectionName), null);
+    }
+    // Find some documents
+    // if payload = {} get all 
+
+    collection.find(payload || {}).toArray(function(err, docs) {
+      callback(err, docs);
+    });
+}
 /*
     public methods
 */
@@ -138,9 +151,14 @@ function get(db, payload, cb) {
     return findDocuments(db, payload, cb);
 }
 
+function getTotals(db, payload, cb) {
+    return getAllTotals(db, payload, cb);
+}
+
 module.exports = {
     connect: connect,
     insert: insert,
     del: del,
-    getAllSubmissions: get
+    getAllSubmissions: get,
+    getTotals: getTotals
 };

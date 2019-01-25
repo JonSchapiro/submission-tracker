@@ -24,6 +24,15 @@ const startUp = () => {
             return res.send(results);
         }));
 
+        app.get('/totals', (req, res) => mongo.getTotals(db, {}, (err, results) => {
+            if (err) {
+                res.status(404);
+                return res.send([]);
+            }
+
+            res.status(200);
+            return res.send(results);
+        }))
 
         app.get('/submissions/:id', (req, res) => res.sendStatus('Hello World!'));
         
