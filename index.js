@@ -14,7 +14,7 @@ const startUp = () => {
 
         app.use(express.json());
 
-        app.get('/submissions', (req, res) => mongo.get(db, {}, (err, results) => {
+        app.get('/submissions', (req, res) => mongo.getAllSubmissions(db, {}, (err, results) => {
             if (err) {
                 res.status(404);
                 return res.send([]);
@@ -29,7 +29,6 @@ const startUp = () => {
         
         app.post('/submissions', (req, res) => {
             const submission = req.body;
-            console.log('loc1 ', submission);
             if (!submission || !isValidSubmission(submission)) {
                 return res.sendStatus(404);
             }
@@ -66,7 +65,7 @@ startUp();
         _id: '123', // on the object already
         user: 'jschapir',
         boa: true/false,
-        type: 'sub/sweep/pass',
+        type: 'subs/sweeps/passes',
         position: 'closed guard/open guard',
         positionName: 'arm lock',
         yourBelt: 'white/blue/purple/brown/black,

@@ -24,11 +24,33 @@ const url = 'mongodb://localhost:27017';
 // Database Name
 const dbName = 'submission-tracker';
 const collectionName = 'submissions';
+const totalsCollectionName = 'totals';
 const client = new MongoClient(url);
 
+const totalHelpers = require('../utils/helpers/totals');
 /*
     private methods
 */
+const updateTotals = function(db, payload, callback) {
+    const totalsCollection = db.collection(totalsCollectionName);
+    return totalsCollection.find({user: payload.user}).limit(1).toArray((err, totals) => {
+        if (err) {
+            return callback(err, totals);
+        }
+        // initialize new totals
+        if (totals.length < 1) {
+            return totalsCollection.insert(totalHelpers.newTotals(payload), (newTotalsErr, newTotalsResult) => {
+                return callback(newTotalsErr, newTotalsResult);
+            });
+        }
+    
+        const updatedTotals = totalHelpers.getUpdatedTotals(payload, totals[0]);
+    
+        return totalsCollection.updateOne({ user: payload.user }, { "$set": updatedTotals }, (err, result) => {
+            callback(err, result);
+        });
+    });
+};
 
 const insertDocuments = function(db, payload, callback) {
     const collection = db.collection(collectionName);
@@ -40,9 +62,11 @@ const insertDocuments = function(db, payload, callback) {
         return callback(new Error('Could not location collection ', collectionName), null);
     }
 
-    collection.insertMany(payload, function(err, result) {
+    collection.insertMany(payload, function(insertErr, insertResult) {
       console.log("Inserted document successfully");
-      callback(err, result);
+      updateTotals(db, payload[0], (updateErr, updateResult) => {
+          callback(insertErr + updateErr, [insertResult, updateResult]);
+      })
     });
 };
 
@@ -57,7 +81,6 @@ const findDocuments = function(db, payload, callback) {
     // if payload = {} get all 
 
     collection.find(payload || {}).toArray(function(err, docs) {
-      console.log("Found the following records: ", docs);
       callback(err, docs);
     });
 }
@@ -119,5 +142,5 @@ module.exports = {
     connect: connect,
     insert: insert,
     del: del,
-    get: get
+    getAllSubmissions: get
 };
