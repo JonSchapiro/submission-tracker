@@ -19,6 +19,7 @@ function newTotals(payload) {
     };
 
     newTotal[payload.type][boaType] = {
+        total: 1,
         [payload.positionName] : { [payload.position] : 1}
     };
 
@@ -29,6 +30,9 @@ function getUpdatedTotals(payload, oldTotals) {
     const boaType = payload.boa ? 'boa' : 'ruim';
     const currTotalData = oldTotals[payload.type][boaType];
     const boaTypeTotals = currTotalData.total + 1;
+
+    oldTotals[payload.type][boaType].total = boaTypeTotals;
+
     const newTotals = Object.assign({}, {
         [payload.type]: {
             [boaType]: {
@@ -38,7 +42,6 @@ function getUpdatedTotals(payload, oldTotals) {
         }
     }, oldTotals);
 
-    
     const positionNameTotalData = currTotalData[payload.positionName];
 
     if (!positionNameTotalData) {
