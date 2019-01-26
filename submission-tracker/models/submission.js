@@ -9,18 +9,19 @@ const BELTS = t.enums({
 });
 
 const TYPE = t.enums({
-    SUBMISSION: 'subs',
-    PASS: 'passes',
-    SWEEPS: 'sweeps'
+    subs: 'SUBMISSION',
+    passes: 'PASS',
+    sweeps: 'SWEEPS'
 });
 
 const Submission = t.struct({
   type: TYPE,
-  position: t.String,
-  positionName: BELTS,
-  yourBelt: BELTS,
   boa: t.Boolean,
-  theirBelt: t.Date
+  position: t.String,
+  positionName: t.String,
+  yourBelt: BELTS,
+  theirBelt: BELTS,
+  date: t.Date
 });
 
 export default Submission;

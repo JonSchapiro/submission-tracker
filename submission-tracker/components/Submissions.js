@@ -14,9 +14,9 @@ class Submissions extends Component {
     const { submissions } = this.props;
     return (
       <View>
-          <Text>Hello World</Text>
+          <Text class="item">Hello World</Text>
         {submissions.map(sub => {
-            return <Text>{sub.positionName}</Text>
+            return <Text>hi there</Text>
         })}
       </View>
     );
@@ -36,6 +36,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
+    loading: state.loading,
+    error: state.error,
     submissions: state.submissions
   };
 };
